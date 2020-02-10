@@ -12,6 +12,7 @@
 
 <script>
 import{mapState,mapMutations } from 'vuex'
+import {player} from '../store/player.js'
 export default {
     data() {
         return {
@@ -50,8 +51,31 @@ export default {
         ...mapMutations(['togglePlay','changeCover']),
 
        async handleChange(){
-           
+           const target = this.$refs.file
+           const files = target.files ||[]
+
+           if(files.length){
+               for (let i = 0; i < files.length; i++) {
+                   await player.append(files[i]);
+                   
+               }
+           }
+           target.value = ''
         }
+    },
+    mounted() {
+        player.OnReady.listen(()=>{
+            this.changeCover()
+        })
+        player.OnChange.listen(()=>{
+            this.changeCover()
+        })
+        player.OnPlay.listen(()=>{
+            this.togglePlay(true)
+        })
+        player.OnPause.listen(()=>{
+            this.togglePlay(false)
+        })
     },
 };
 </script>
